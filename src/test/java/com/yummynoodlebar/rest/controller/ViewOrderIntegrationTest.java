@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -17,10 +18,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.yummynoodlebar.core.events.orders.RequestOrderDetailsEvent;
 import com.yummynoodlebar.core.services.OrderService;
+import com.yummynoodlebar.rest.controller.fixture.RestDataFixtures;
+import com.yummynoodlebar.rest.controller.fixture.RestEventFixtures;
 
-import static org.mockito.Mockito.*;
-import static com.yummynoodlebar.rest.controller.fixture.RestEventFixtures.*; 
-import static com.yummynoodlebar.rest.controller.fixture.RestDataFixtures.*;
 
 
 public class ViewOrderIntegrationTest {
@@ -41,10 +41,11 @@ public class ViewOrderIntegrationTest {
       .setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
   }
 
+  
   @Test
   public void thatViewOrderUsesHttpNotFound() throws Exception {
-    when(orderService.requestOrderDetails(any(RequestOrderDetailsEvent.class)))
-      .thenReturn(orderDetailsNotFound(key));
+    Mockito.when(orderService.requestOrderDetails(Mockito.any(RequestOrderDetailsEvent.class)))
+      .thenReturn(RestEventFixtures.orderDetailsNotFound(key));
     this.mockMvc.perform(
       MockMvcRequestBuilders.get("/aggregators/orders/{id}", key.toString())
         .accept(MediaType.APPLICATION_JSON))
@@ -54,8 +55,8 @@ public class ViewOrderIntegrationTest {
 
   @Test
   public void thatViewOrderUsesHttpOk() throws Exception {
-    when(orderService.requestOrderDetails(any(RequestOrderDetailsEvent.class)))
-      .thenReturn(orderDetailsEvent(key));
+    Mockito.when(orderService.requestOrderDetails(Mockito.any(RequestOrderDetailsEvent.class)))
+      .thenReturn(RestEventFixtures.orderDetailsEvent(key));
     this.mockMvc.perform(
       MockMvcRequestBuilders.get("/aggregators/orders/{id}", key.toString())
         .accept(MediaType.APPLICATION_JSON))
@@ -65,12 +66,12 @@ public class ViewOrderIntegrationTest {
 
   @Test
   public void thatViewOrderRendersCorrectly() throws Exception{
-    when(orderService.requestOrderDetails(any(RequestOrderDetailsEvent.class)))
-      .thenReturn(orderDetailsEvent(key));
+    Mockito.when(orderService.requestOrderDetails(Mockito.any(RequestOrderDetailsEvent.class)))
+      .thenReturn(RestEventFixtures.orderDetailsEvent(key));
     this.mockMvc.perform(
       MockMvcRequestBuilders.get("/aggregators/orders/{id}", key.toString())
         .accept(MediaType.APPLICATION_JSON))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.items['"+YUMMY_ITEM+"']").value(12))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.items['"+ RestDataFixtures.YUMMY_ITEM+"']").value(12))
       .andExpect(MockMvcResultMatchers.jsonPath("$.key").value(key.toString()));
   }
 }
