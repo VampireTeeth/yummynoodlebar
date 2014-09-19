@@ -3,6 +3,7 @@ build/
 .gradle/
 out/
 target/
+bin/
 .iws
 .ipr
 .directory
