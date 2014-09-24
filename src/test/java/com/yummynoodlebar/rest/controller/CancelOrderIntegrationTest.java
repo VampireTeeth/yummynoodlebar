@@ -1,25 +1,26 @@
 package com.yummynoodlebar.rest.controller;
 
-import java.util.UUID;
-
+import com.yummynoodlebar.core.events.orders.DeleteOrderEvent;
+import com.yummynoodlebar.core.services.OrderService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.yummynoodlebar.core.events.orders.DeleteOrderEvent;
-import com.yummynoodlebar.core.services.OrderService;
-import com.yummynoodlebar.rest.controller.fixture.RestEventFixtures;
+import java.util.UUID;
+
+import static com.yummynoodlebar.rest.controller.fixture.RestEventFixtures.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 public class CancelOrderIntegrationTest {
 
@@ -36,59 +37,55 @@ public class CancelOrderIntegrationTest {
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		this.mockMvc = MockMvcBuilders
-				.standaloneSetup(controller)
+		this.mockMvc = standaloneSetup(controller)
 				.setMessageConverters(new MappingJackson2HttpMessageConverter())
 				.build();
 	}
 
 	@Test
 	public void thatDeleteOrderUsesHttpOkOnSuccess() throws Exception {
-		Mockito.when(
-				orderService.deleteOrder(Mockito.any(DeleteOrderEvent.class)))
-				.thenReturn(RestEventFixtures.orderDeleted(key));
+		when(orderService.deleteOrder(any(DeleteOrderEvent.class)))
+				.thenReturn(orderDeleted(key));
 
 		this.mockMvc
 				.perform(
 						MockMvcRequestBuilders.delete(
 								"/aggregators/orders/{id}", key.toString())
-								.accept(MediaType.APPLICATION_JSON))
-				.andDo(MockMvcResultHandlers.print())
-				.andExpect(MockMvcResultMatchers.status().isOk());
+								.accept(APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isOk());
 
-		Mockito.verify(orderService).deleteOrder(
-				Mockito.argThat(Matchers.<DeleteOrderEvent> hasProperty("key",
-						Matchers.equalTo(key))));
+		verify(orderService).deleteOrder(
+				argThat(Matchers.<DeleteOrderEvent>hasProperty("key",
+                Matchers.equalTo(key))));
 	}
 
 	@Test
 	public void thatDeleteOrderUsesHttpNotFoundOnEntityLookupFailure()
 			throws Exception {
-		Mockito.when(
-				orderService.deleteOrder(Mockito.any(DeleteOrderEvent.class)))
-				.thenReturn(RestEventFixtures.orderDeletedNotFound(key));
+		when(orderService.deleteOrder(any(DeleteOrderEvent.class)))
+				.thenReturn(orderDeletedNotFound(key));
 		this.mockMvc
 				.perform(
 						MockMvcRequestBuilders.delete(
 								"/aggregators/orders/{id}", key.toString())
-								.accept(MediaType.APPLICATION_JSON))
-				.andDo(MockMvcResultHandlers.print())
-				.andExpect(MockMvcResultMatchers.status().isNotFound());
+								.accept(APPLICATION_JSON))
+				.andDo(print())
+				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void thatDeleteOrderUsesHttpForbiddenOnEntityDeletionFailure()
 			throws Exception {
-		Mockito.when(
-				orderService.deleteOrder(Mockito.any(DeleteOrderEvent.class)))
-				.thenReturn(RestEventFixtures.orderDeletedFailed(key));
+		when(orderService.deleteOrder(any(DeleteOrderEvent.class)))
+				.thenReturn(orderDeletedFailed(key));
 		this.mockMvc
 				.perform(
 						MockMvcRequestBuilders.delete(
 								"/aggregators/orders/{id}", key.toString())
-								.accept(MediaType.APPLICATION_JSON))
-				.andDo(MockMvcResultHandlers.print())
-      .andExpect(MockMvcResultMatchers.status().isForbidden());
+								.accept(APPLICATION_JSON))
+				.andDo(print())
+      .andExpect(status().isForbidden());
   }
   
 }
