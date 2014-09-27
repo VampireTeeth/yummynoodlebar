@@ -2,12 +2,14 @@ package com.yummynoodlebar.rest.domain;
 
 import com.yummynoodlebar.core.events.orders.OrderDetails;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+@XmlRootElement
 public class Order implements Serializable {
 
   private Date dateTimeOfSubmission;

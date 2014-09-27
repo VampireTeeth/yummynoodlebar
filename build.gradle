@@ -9,17 +9,17 @@ apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
 
 buildscript {
-  repositories {
-    mavenCentral()
-    maven {
-      url "http://download.java.net/maven/2"
+    repositories {
+        mavenCentral()
+        maven {
+            url "http://download.java.net/maven/2"
+        }
+        maven { url 'http://repo.spring.io/plugins-release' }
     }
-    maven { url 'http://repo.spring.io/plugins-release' }
-  }
 
-  dependencies {
-    classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
-  }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+    }
 }
 
 repositories {
@@ -50,3 +50,4 @@ dependencies {
 task wrapper(type: Wrapper) {
     gradleVersion = '1.6'
 }
+
